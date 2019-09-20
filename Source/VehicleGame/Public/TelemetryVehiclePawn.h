@@ -19,5 +19,6 @@ public:
 
 	ATelemetryVehiclePawn(const FObjectInitializer& ObjectInitializer);
 
+	/*Implementando questo metodo si garantisce una callback quando si attiva lo showdebug*/
 	virtual void DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& YL, float& YPos) override;
 };

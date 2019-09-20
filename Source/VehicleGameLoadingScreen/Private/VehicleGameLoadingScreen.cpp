@@ -15,14 +15,16 @@ struct FVehicleGameLoadingScreenBrush : public FSlateDynamicImageBrush, public F
 	FVehicleGameLoadingScreenBrush( const FName InTextureName, const FVector2D& InImageSize )
 		: FSlateDynamicImageBrush( InTextureName, InImageSize )
 	{
-		ResourceObject = LoadObject<UObject>( nullptr, *InTextureName.ToString() );
+		UObject* obj =  LoadObject<UObject>( nullptr, *InTextureName.ToString() );
+		SetResourceObject(obj);
 	}
 
 	virtual void AddReferencedObjects(FReferenceCollector& Collector)
 	{
-		if( ResourceObject )
+		UObject *obj = GetResourceObject();
+		if(obj)
 		{
-			Collector.AddReferencedObject(ResourceObject);
+			Collector.AddReferencedObject(obj);
 		}
 	}
 };

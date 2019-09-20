@@ -9,7 +9,9 @@
 #include "ReflectionUtilsFunctionLibrary.h"
 
 #if !UE_BUILD_SHIPPING
-
+/** 
+prende il primo argomento, stringa separata da ; e lo setta sul telemetry component dell'attore
+*/
 static void UpdateTelemetryQuery(const TArray<FString>& InArgs, UWorld* InWorld)
 {
 	if (InArgs.Num() == 0)
@@ -19,15 +21,18 @@ static void UpdateTelemetryQuery(const TArray<FString>& InArgs, UWorld* InWorld)
 
 	const FString& TelemetryQuery = InArgs[0];
 
+	//per accedere al pawn si deve passare dal world, si prende il player controller
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(InWorld, 0);
 	if (PlayerController)
 	{
+		//si prende il pawn
 		APawn* PlayerPawn = PlayerController->GetPawn();
 		if (PlayerPawn)
 		{
 			ATelemetryVehiclePawn* TelemetryVehiclePawn = Cast<ATelemetryVehiclePawn>(PlayerPawn);
 			if (TelemetryVehiclePawn && TelemetryVehiclePawn->TelemetryComponent)
 			{
+				//se ha un componente di telemetria si setta la query
 				UTelemetryComponent* TelemetryComponent = TelemetryVehiclePawn->TelemetryComponent;
 				TelemetryComponent->SetTelemetryQuery(TelemetryQuery);
 			}
@@ -61,13 +66,13 @@ static void UpdateTelemetryGraphRange(const TArray<FString>& InArgs, UWorld* InW
 	}
 }
 
-static FAutoConsoleCommandWithWorldAndArgs UpdateTelemetryQueryCommand(
-	TEXT("Telemetry.Query"),
-	TEXT("Telemetry query"),
-	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(UpdateTelemetryQuery)
+static FAutoConsoleCommandWithWorldAndArgs UpdateTelemetryQueryCommand (
+	TEXT("Telemetry.Query"), //in console si scrive	questa stringa..
+	TEXT("Telemetry query"), //questo è un commento che viene mostrato se l'utente digita il comando
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(UpdateTelemetryQuery) //metodo che viene chiamato
 );
 
-static FAutoConsoleCommandWithWorldAndArgs UpdateTelemetryGraphRangeCommand(
+static FAutoConsoleCommandWithWorldAndArgs UpdateTelemetryGraphRangeCommand (
 	TEXT("Telemetry.Range"),
 	TEXT("Telemetry graph range"),
 	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(UpdateTelemetryGraphRange)
@@ -113,7 +118,7 @@ void UTelemetryComponent::UpdateTelemetryTargets()
 		{
 			UObject* Object = nullptr;
 			UProperty* Property = UReflectionUtilsFunctionLibrary::RetrieveProperty(GetOwner(), Telemetry, Object);
-
+			ensureAlways(Property);
 			TelemetryTarget Target;
 			Target.TargetObject = Object;
 			Target.TargetProperty = Property;
@@ -144,6 +149,10 @@ void DrawLabel(UCanvas* InCanvas, const FString& InLabel, const FColor& InColor,
 	OutY = InY + YL;
 }
 
+/*
+QUI VA GESTITO LA STAMPA DEI VECTOR E FLOAT
+@TODO
+*/
 void DrawGraph(UCanvas* InCanvas, const TArray<float>& Values, const FVector2D& Range, float InCurValue, const FLinearColor& InBackgroundColor, const FLinearColor& InColor, float InX, float InY, float InGraphWidth, float InGraphHeight, bool InDrawXAxis, bool InDrawYAxis, float& OutX, float& OutY)
 {
 	FCanvasTileItem TileItem(FVector2D(InX, InY), GWhiteTexture, FVector2D(InGraphWidth, InGraphHeight), InBackgroundColor);

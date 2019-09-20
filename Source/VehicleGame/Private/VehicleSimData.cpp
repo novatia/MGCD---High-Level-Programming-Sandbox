@@ -9,9 +9,24 @@
 
 UVehicleSimData::UVehicleSimData()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	
+	PrimaryComponentTick.bCanEverTick = true; //l'oggetto DEVE fare il tick, ovvero l'update
+	PrimaryComponentTick.TickGroup = TG_PostPhysics;/*Qui si configura la modalità di tick del componente*/
 }
 
+/*
+Questo metodo prende da un oggetto di tipo Physx driver i valori richiesti per il veicolo
+Questo metodo viene fatto PER TICK ovvero per frame.
+
+Il frame viene composto in parallelo. Anche se non sono di default multi core in unreal se non specificato.
+
+------------TIME ----------->
+| PRE PHY | DURING PHY | POST PHY | (sono 6/7)
+
+Il tick dell'oggetto è configurabile in una qualsiasi di queste fasi.
+C'è una update unica che va sempre a frame time.
+Quello che si può fare è scegliere in quale delle fasi inserirci.
+*/
 void UVehicleSimData::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -20,7 +35,12 @@ void UVehicleSimData::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	if (Vehicle != nullptr)
 	{
+
 		UWheeledVehicleMovementComponent* VehicleMovement = Vehicle->GetVehicleMovementComponent();
+		USceneComponent *c  = GetOwner()->GetRootComponent();
+		UPrimitiveComponent *uc = Cast<UPrimitiveComponent>(c);
+		FBodyInstance* BI = uc->GetBodyInstance();
+		FVector velociy = BI->GetUnrealWorldVelocity_AssumesLocked();
 
 		if (VehicleMovement != nullptr)
 		{
